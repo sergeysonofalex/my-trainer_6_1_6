@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Практическая работа: Организация хранения данных (6 класс)</title>
+<style>
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+    font-size: 17px;
+    color: #1b2430;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 45%, #4facfe 100%);
+    background-attachment: fixed;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  input { user-select: text; -webkit-user-select: text; }
+
+  .screen { display: none; }
+  .screen.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  /* ============ АВТОРИЗАЦИЯ ============ */
+  .auth-card {
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 34px 38px;
+    width: 100%;
+    max-width: 540px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
+    animation: pop .35s ease;
+  }
+
+  .auth-icon { font-size: 56px; line-height: 1; }
+
+  .auth-card h1 {
+    margin: 12px 0 4px;
+    font-size: 27px;
+    color: #1e3c72;
+  }
+
+  .subtitle {
+    margin: 0 0 22px;
+    font-size: 16px;
+    color: #7f8c9a;
+  }
+
+  .auth-card label {
+    display: block;
+    text-align: left;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #34495e;
+  }
+
+  #nameInput {
+    width: 100%;
+    padding: 15px 18px;
+    font-size: 20px;
+    font-family: inherit;
+    border-radius: 14px;
+    border: 3px solid #2ecc71;
+    box-shadow: 0 0 12px rgba(46, 204, 113, .4);
+    outline: none;
+    transition: box-shadow .2s, border-color .2s;
+  }
+
+  #nameInput:focus {
+    border-color: #27ae60;
+    box-shadow: 0 0 18px rgba(46, 204, 113, .75);
+  }
+
+  .btn-primary {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 15px 30px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    box-shadow: 0 8px 20px rgba(39, 174, 96, .45);
+    transition: transform .15s, box-shadow .15s, opacity .2s;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(39, 174, 96, .55);
+  }
+
+  .btn-primary:disabled {
+    background: #bdc3c7;
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: .8;
+  }
+
+  #startBtn { margin-top: 22px; width: 100%; }
+
+  /* ============ ОПИСАНИЕ ЭТАПА ============ */
+  .desc-card {
+    background: #fff;
+    border-radius: 22px;
+    padding: 32px 36px;
+    width: 100%;
+    max-width: 760px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
+    animation: pop .35s ease;
+  }
+
+  .desc-card h2 {
+    margin-top: 0;
+    font-size: 25px;
+    color: #1e3c72;
+  }
+
+  .desc-card ul {
+    margin: 14px 0;
+    padding-left: 24px;
+    line-height: 1.7;
+  }
+
+  .desc-card li { margin-bottom: 6px; }
+
+  .desc-badge {
+    display: inline-block;
+    background: #eaf4ff;
+    color: #1e3c72;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 700;
+    margin: 6px 6px 6px 0;
+  }
+
+  .program-icons {
+    background: #f0f7ff;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin: 14px 0 4px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #1e3c72;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .program-icons span { white-space: nowrap; }
+
+  .desc-actions { margin-top: 22px; text-align: center; }
+
+  /* ============ ОПРОС ============ */
+  #quizScreen.screen.active { justify-content: flex-start; }
+
+  .topbar {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto 16px;
+    background: rgba(255, 255, 255, .96);
+    border-radius: 16px;
+    padding: 12px 22px;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, .22);
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e3c72;
+  }
+
+  .progress-bar {
+    height: 10px;
+    background: #e1e8ee;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 9px;
+  }
+
+  #progressFill {
+    height: 100%;
+    width: 0;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #2ecc71, #27ae60);
+    transition: width .35s ease;
+  }
+
+  .q-card {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto 24px;
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px 28px 26px;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, .3);
+    animation: pop .25s ease;
+  }
+
+  .q-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .q-icon {
+    font-size: 38px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .q-text {
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: #1b2430;
+  }
+
+  /* --- Варианты ответа --- */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .option {
+    font-family: inherit;
+    text-align: left;
+    padding: 15px 20px;
+    font-size: 18px;
+    border-radius: 14px;
+    border: 2px solid #dfe6ee;
+    background: #f8fafc;
+    color: #1b2430;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, transform .15s, box-shadow .15s;
+  }
+
+  .option:hover:not(.locked) {
+    border-color: #3498db;
+    background: #eaf4ff;
+    transform: translateX(4px);
+  }
+
+  .option.selected {
+    border-color: #3498db;
+    background: #dbeeff;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, .25);
+  }
+
+  .option.correct {
+    border-color: #2ecc71;
+    background: #e8fff2;
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, .25);
+  }
+
+  .option.wrong {
+    border-color: #e74c3c;
+    background: #ffecec;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, .2);
+  }
+
+  .option.locked { cursor: default; }
+
+  /* --- Соответствия --- */
+  .match-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 20px;
+  }
+
+  .match-col { display: flex; flex-direction: column; gap: 10px; }
+
+  .m-item {
+    font-family: inherit;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: 2px solid #dfe6ee;
+    background: #f8fafc;
+    color: #1b2430;
+    cursor: pointer;
+    transition: all .15s;
+    text-align: left;
+    word-break: break-word;
+  }
+
+  .m-item:hover:not(.used) { border-color: #3498db; background: #eaf4ff; }
+
+  .m-left.sel {
+    border-color: #3498db;
+    background: #dbeeff;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, .25);
+  }
+
+  .m-slot { color: #95a5a6; font-weight: 700; white-space: nowrap; }
+  .m-left.filled .m-slot { color: #27ae60; }
+
+  .m-right.used { opacity: .35; }
+
+  .m-left.ok { border-color: #2ecc71; background: #e8fff2; }
+  .m-left.bad { border-color: #e74c3c; background: #ffecec; }
+
+  /* --- Порядок --- */
+  .order-seq {
+    margin-top: 20px;
+    min-height: 64px;
+    border: 2px dashed #bdc3c7;
+    border-radius: 14px;
+    padding: 12px;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .order-placeholder {
+    color: #95a5a6;
+    font-size: 15px;
+    font-style: italic;
+    text-align: center;
+    padding: 10px 0;
+  }
+
+  .order-label {
+    margin-top: 18px;
+    font-weight: 700;
+    color: #34495e;
+    font-size: 15px;
+  }
+
+  .order-pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .order-item {
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    font-size: 17px;
+    font-weight: 600;
+    border-radius: 12px;
+    background: #fff;
+    border: 2px solid #dfe6ee;
+    cursor: pointer;
+    transition: all .15s;
+  }
+
+  .order-item:hover { border-color: #3498db; background: #eaf4ff; }
+
+  .order-item.in-seq {
+    background: #eaf4ff;
+    border-color: #3498db;
+  }
+
+  .order-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #3498db;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .order-item.ok { border-color: #2ecc71; background: #e8fff2; }
+  .order-item.bad { border-color: #e74c3c; background: #ffecec; }
+
+  /* --- Drag & Drop --- */
+  .drop-target {
+    border-radius: 16px;
+    padding: 10px 12px 12px;
+    transition: border-color .15s, background .15s;
+  }
+
+  .cards-pool {
+    margin-top: 18px;
+    border: 2px dashed #bdc3c7;
+    background: #f8fafc;
+    min-height: 86px;
+  }
+
+  .cards-pool.over { border-color: #2ecc71; background: #eafff3; }
+
+  .cards-pool .zone-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 40px;
+  }
+
+  .zones {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .zone {
+    border: 2px solid #dfe6ee;
+    background: #fbfdff;
+    min-height: 130px;
+  }
+
+  .zone.over { border-color: #2ecc71; background: #eafff3; }
+
+  .zone-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: #34495e;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .zone-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 46px;
+  }
+
+  .dnd-card {
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    border: 2px solid #3498db;
+    background: linear-gradient(135deg, #ffffff, #eef4fb);
+    cursor: grab;
+    transition: transform .12s, box-shadow .12s, border-color .15s, background .15s;
+    word-break: break-word;
+  }
+
+  .dnd-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(52, 152, 219, .3); }
+
+  .dnd-card.dragging { opacity: .45; }
+
+  .dnd-card.selected { box-shadow: 0 0 0 3px rgba(52, 152, 219, .45); }
+
+  .dnd-card.ok { border-color: #2ecc71; background: #e8fff2; }
+  .dnd-card.bad { border-color: #e74c3c; background: #ffecec; }
+
+  /* --- Обратная связь --- */
+  .feedback {
+    display: none;
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .feedback.show { display: block; animation: pop .22s ease; }
+  .feedback.ok { background: #e8fff2; color: #1e8449; border-left: 6px solid #2ecc71; }
+  .feedback.bad { background: #ffecec; color: #c0392b; border-left: 6px solid #e74c3c; }
+
+  .q-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 14px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  /* ============ РЕЗУЛЬТАТ ============ */
+  .result-card {
+    background: #fff;
+    border-radius: 22px;
+    padding: 30px 34px;
+    width: 100%;
+    max-width: 780px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
+    text-align: center;
+    animation: pop .35s ease;
+  }
+
+  .res-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #7f8c9a;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0 0 14px;
+  }
+
+  .result-name {
+    display: inline-block;
+    font-size: 31px;
+    font-weight: 800;
+    color: #ffffff;
+    background: linear-gradient(135deg, #3498db, #1e3c72);
+    padding: 12px 34px;
+    border-radius: 16px;
+    box-shadow: 0 10px 24px rgba(30, 60, 114, .4);
+    margin-bottom: 22px;
+  }
+
+  .result-grade {
+    font-size: 52px;
+    font-weight: 900;
+    color: #fff;
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    padding: 22px 24px;
+    border-radius: 20px;
+    box-shadow: 0 14px 34px rgba(230, 126, 34, .5);
+    letter-spacing: 1px;
+    line-height: 1.15;
+  }
+
+  .result-stats {
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    background: #f4f8fc;
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1b2430;
+    text-align: left;
+  }
+
+  .stat-row b { color: #1e3c72; }
+
+  .teacher-warning {
+    margin-top: 26px;
+    background: linear-gradient(135deg, #e74c3c, #e67e22);
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 900;
+    text-align: center;
+    padding: 20px 18px;
+    border-radius: 16px;
+    letter-spacing: .5px;
+    line-height: 1.3;
+    box-shadow: 0 14px 30px rgba(231, 76, 60, .45);
+    animation: pulse 1.8s infinite;
+  }
+
+  @keyframes pop {
+    from { opacity: 0; transform: scale(.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
+
+  @media (max-width: 720px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .result-grade { font-size: 36px; }
+    .teacher-warning { font-size: 18px; }
+    .q-text { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= ЭКРАН 1: АВТОРИЗАЦИЯ ================= -->
+<section id="authScreen" class="screen active">
+  <div class="auth-card">
+    <div class="auth-icon">💾</div>
+    <h1>Практическая работа</h1>
+    <p class="subtitle">Организация хранения данных · 6 класс</p>
+    <label for="nameInput">Введите ваше имя и фамилию:</label>
+    <input type="text" id="nameInput" placeholder="" autocomplete="off" spellcheck="false">
+    <button id="startBtn" class="btn-primary" disabled>Начать практическую работу</button>
+  </div>
+</section>
+
+<!-- ================= ЭКРАН 2: ДЕСКРИПТОРЫ ЭТАПА 1 ================= -->
+<section id="descScreen" class="screen">
+  <div class="desc-card">
+    <h2>🔹 Этап 1 — Базовый практический уровень</h2>
+    <div class="desc-badge">35 заданий</div>
+    <div class="desc-badge">Максимум 8 баллов</div>
+    <div class="program-icons">
+      <span>📝 Word</span>
+      <span>🎨 Paint</span>
+      <span>🎵 Проигрыватель</span>
+      <span>🌐 Браузер</span>
+      <span>📝 Блокнот</span>
+    </div>
+    <ul>
+      <li>📄 Знание типов файлов и основных расширений (.docx, .jpg, .mp3, .exe)</li>
+      <li>📁 Назначение папок и порядок хранения файлов</li>
+      <li>🔤 Правильные и неправильные имена файлов</li>
+      <li>🗂️ Простая классификация файлов перетаскиванием</li>
+    </ul>
+    <p style="color:#7f8c9a;font-size:15px;margin-bottom:0;">
+      На этом этапе оценка НЕ показывается. Работай спокойно и внимательно!
+    </p>
+    <div class="desc-actions">
+      <button id="beginStage1" class="btn-primary">Начать Этап 1 ▶</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ЭКРАН 3: ЗАДАНИЯ ================= -->
+<section id="quizScreen" class="screen">
+  <div class="topbar">
+    <div class="progress-info">
+      <span id="stageLabel">Этап 1</span>
+      <span id="qCounter">Задание 1 / 35</span>
+    </div>
+    <div class="progress-bar"><div id="progressFill"></div></div>
+  </div>
+
+  <div class="q-card">
+    <div id="qBody"></div>
+    <div class="q-actions">
+      <button id="actionBtn" class="btn-primary">Проверить</button>
+    </div>
+    <div id="feedback" class="feedback"></div>
+  </div>
+</section>
+
+<!-- ================= ЭКРАН 4: ДЕСКРИПТОРЫ ЭТАПА 2 ================= -->
+<section id="stage2Screen" class="screen">
+  <div class="desc-card">
+    <h2>🔸 Этап 2 — Продвинутый уровень</h2>
+    <div class="desc-badge">15 заданий</div>
+    <div class="desc-badge">Добавляет до 2 баллов (шанс на 9–10!)</div>
+    <div class="program-icons">
+      <span>📝 Word</span>
+      <span>🎨 Paint</span>
+      <span>🎵 Проигрыватель</span>
+      <span>🌐 Браузер</span>
+      <span>📝 Блокнот</span>
+    </div>
+    <ul>
+      <li>🧭 Разбор длинных путей к файлам</li>
+      <li>🏔️ Вложенность папок и иерархия каталогов</li>
+      <li>❌ Поиск замаскированных ошибок в именах</li>
+      <li>🗂️ Сложная сортировка перетаскиванием</li>
+    </ul>
+    <p style="color:#7f8c9a;font-size:15px;margin-bottom:0;">
+      Итоговая оценка появится только после завершения этого этапа.
+    </p>
+    <div class="desc-actions">
+      <button id="beginStage2" class="btn-primary">Начать Этап 2 ▶</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ЭКРАН 5: РЕЗУЛЬТАТ ================= -->
+<section id="resultScreen" class="screen">
+  <div class="result-card">
+    <p class="res-title">Результат практической работы</p>
+    <div class="result-name" id="resName">—</div>
+    <div class="result-grade" id="resGrade">ИТОГОВАЯ ОЦЕНКА: 0 / 10</div>
+
+    <div class="result-stats">
+      <div class="stat-row">
+        <span>✅ Верных ответов</span>
+        <b id="resCorrect">0 из 50</b>
+      </div>
+      <div class="stat-row">
+        <span>🔹 Баллы за Этап 1</span>
+        <b id="resStage1">0 / 8</b>
+      </div>
+      <div class="stat-row">
+        <span>🔸 Баллы за Этап 2</span>
+        <b id="resStage2">0 / 2</b>
+      </div>
+    </div>
+
+    <div class="teacher-warning">
+      ⚠️ НЕ ЗАКРЫВАЙ РЕЗУЛЬТАТ,<br>ПОКА УЧИТЕЛЬ НЕ ПРОВЕРИТ!
+    </div>
+  </div>
+</section>
+
+<script>
+/* =========================================================
+   0. ЗАЩИТА ОТ КОПИРОВАНИЯ / ВЫДЕЛЕНИЯ / СКРИНШОТОВ
+   ========================================================= */
+document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+document.addEventListener('keydown', function (e) {
+  var key = (e.key || '').toLowerCase();
+  if (e.ctrlKey && ['c', 'a', 'p', 's', 'u', 'x', 'v'].indexOf(key) !== -1) {
+    e.preventDefault();
+    return false;
+  }
+  if (e.key === 'F12' || e.key === 'PrintScreen' || e.keyCode === 123 || e.keyCode === 44) {
+    e.preventDefault();
+    return false;
+  }
+});
+
+document.addEventListener('copy', function (e) { e.preventDefault(); });
+document.addEventListener('cut', function (e) { e.preventDefault(); });
+document.addEventListener('selectstart', function (e) {
+  if (e.target && e.target.tagName === 'INPUT') return;
+  e.preventDefault();
+});
+document.addEventListener('dragstart', function (e) {
+  if (e.target && e.target.classList && e.target.classList.contains('dnd-card')) return;
+  e.preventDefault();
+});
+
+/* =========================================================
+   1. ПЕРЕМЕШИВАНИЕ (Fisher–Yates Shuffle)
+   ========================================================= */
+function shuffle(source) {
+  var arr = source.slice();
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
+  }
+  return arr;
+}
+
+/* =========================================================
+   2. БАНК ЗАДАНИЙ
+   ========================================================= */
+var STAGE1 = [
+  { icon:'📝', type:'mcq',
+    text:'Какое расширение у текстового документа, созданного в программе Word?',
+    options:['.docx','.jpg','.mp3','.exe'], correct:'.docx' },
+
+  { icon:'🎨', type:'mcq',
+    text:'Какое расширение обычно имеют файлы с картинками (фотографиями)?',
+    options:['.jpg','.docx','.exe','.txt'], correct:'.jpg' },
+
+  { icon:'🎵', type:'mcq',
+    text:'Какое расширение имеют музыкальные файлы?',
+    options:['.mp3','.jpg','.docx','.exe'], correct:'.mp3' },
+
+  { icon:'⚙️', type:'mcq',
+    text:'Какое расширение имеют программы (приложения)?',
+    options:['.exe','.mp3','.jpg','.docx'], correct:'.exe' },
+
+  { icon:'🔍', type:'tf',
+    text:'Файл «Моя фотография.jpg» — это рисунок.',
+    options:['Верно','Неверно'], correct:'Верно' },
+
+  { icon:'📁', type:'tf',
+    text:'Папки нужны для того, чтобы хранить файлы по порядку и не путаться.',
+    options:['Верно','Неверно'], correct:'Верно' },
+
+  { icon:'🗂️', type:'mcq',
+    text:'Где обычно хранят файлы, чтобы не было беспорядка?',
+    options:['В папках','В корзине','Всё в одной куче на рабочем столе','В блокноте'],
+    correct:'В папках' },
+
+  { icon:'📁', type:'mcq',
+    text:'Что обозначает значок 📁?',
+    options:['Папку','Файл','Программу','Диск'], correct:'Папку' },
+
+  { icon:'🗂️', type:'dnd',
+    text:'Перетащи каждый файл в нужную папку.',
+    zones:['Картинки','Документы','Музыка'],
+    cards:[
+      { label:'фото.jpg', zone:'Картинки' },
+      { label:'урок.docx', zone:'Документы' },
+      { label:'песня.mp3', zone:'Музыка' }
+    ] },
+
+  { icon:'🔤', type:'mcq',
+    text:'Расширение файла — это...',
+    options:['часть имени после последней точки','первая буква имени','название папки','размер файла'],
+    correct:'часть имени после последней точки' },
+
+  { icon:'📝', type:'tf',
+    text:'В имени файла можно использовать символы ? * :',
+    options:['Верно','Неверно'], correct:'Неверно' },
+
+  { icon:'📝', type:'mcq',
+    text:'Какое имя файла записано правильно?',
+    options:['Отчёт за сентябрь.docx','Отчёт:сентябрь.docx','Отчёт?сентябрь.docx','Отчёт*сентябрь.docx'],
+    correct:'Отчёт за сентябрь.docx' },
+
+  { icon:'🔗', type:'match',
+    text:'Соедини тип файла и его расширение.',
+    pairs:[
+      { left:'🎨 Картинка', right:'.jpg' },
+      { left:'🎵 Музыка', right:'.mp3' },
+      { left:'📝 Документ', right:'.docx' },
+      { left:'⚙️ Программа', right:'.exe' }
+    ] },
+
+  { icon:'🗂️', type:'order',
+    text:'Расставь элементы пути к файлу в правильном порядке (от диска к файлу).',
+    items:['C:','Школа','6 класс','Урок.txt'] },
+
+  { icon:'📁', type:'tf',
+    text:'В одной папке могут лежать два разных файла с одинаковыми именами.',
+    options:['Верно','Неверно'], correct:'Неверно' },
+
+  { icon:'📝', type:'mcq',
+    text:'Файл «заметка.txt» — это...',
+    options:['текстовый файл','рисунок','музыка','программа'], correct:'текстовый файл' },
+
+  { icon:'🗂️', type:'mcq',
+    text:'Что из перечисленного является папкой?',
+    options:['Фотографии','фото.jpg','песня.mp3','игра.exe'], correct:'Фотографии' },
+
+  { icon:'🗂️', type:'dnd',
+    text:'Перетащи карточки в две группы: «Папка» и «Файл».',
+    zones:['Папка','Файл'],
+    cards:[
+      { label:'📁 Школа', zone:'Папка' },
+      { label:'📄 урок.docx', zone:'Файл' },
+      { label:'📁 Музыка', zone:'Папка' },
+      { label:'🎵 song.mp3', zone:'Файл' }
+    ] },
+
+  { icon:'💾', type:'tf',
+    text:'Файл — это информация, которая хранится на компьютере под своим именем.',
+    options:['Верно','Неверно'], correct:'Верно' },
+
+  { icon:'🔍', type:'mcq',
+    text:'Что из этого НЕ является файлом?',
+    options:['папка «Уроки»','документ «Уроки.docx»','рисунок «Уроки.jpg»','музыка «Уроки.mp3»'],
+    correct:'папка «Уроки»' },
+
+  { icon:'📝', type:'mcq',
+    text:'В файле «Письмо.docx» расширение — это...',
+    options:['.docx','Письмо','Письмо.','папка'], correct:'.docx' },
+
+  { icon:'❌', type:'tf',
+    text:'Расширение .jpg означает, что это видеофайл.',
+    options:['Верно','Неверно'], correct:'Неверно' },
+
+  { icon:'🔗', type:'match',
+    text:'Соедини файл и его тип.',
+    pairs:[
+      { left:'📝 заметка.txt', right:'Текст' },
+      { left:'🎵 песня.mp3', right:'Звук' },
+      { left:'🎨 фото.jpg', right:'Рисунок' },
+      { left:'⚙️ игра.exe', right:'Программа' }
+    ] },
+
+  { icon:'🗂️', type:'order',
+    text:'Расставь элементы пути к файлу в правильном порядке.',
+    items:['D:','Учёба','6 класс','Домашнее задание.docx'] },
+
+  { icon:'❌', type:'mcq',
+    text:'Что произойдёт, если удалить папку?',
+    options:['Удалятся все файлы внутри неё','Удалится только название','Ничего не произойдёт','Файлы переместятся на рабочий стол'],
+    correct:'Удалятся все файлы внутри неё' },
+
+  { icon:'🎬', type:'dnd',
+    text:'Перетащи файлы в нужные папки.',
+    zones:['Видео','Картинки','Музыка'],
+    cards:[
+      { label:'фильм.mp4', zone:'Видео' },
+      { label:'схема.jpg', zone:'Картинки' },
+      { label:'гимн.mp3', zone:'Музыка' }
+    ] },
+
+  { icon:'📝', type:'tf',
+    text:'Имя файла «Домашнее задание.docx» допустимо.',
+    options:['Верно','Неверно'], correct:'Верно' },
+
+  { icon:'🖼️', type:'mcq',
+    text:'Как называется файл «Схема.png» без расширения?',
+    options:['Схема','png','Схема.png','Схема png'], correct:'Схема' },
+
+  { icon:'📝', type:'mcq',
+    text:'Файл «report.docx» — это...',
+    options:['документ','рисунок','музыка','программа'], correct:'документ' },
+
+  { icon:'📝', type:'dnd',
+    text:'Разложи имена файлов в группы «Правильные имена» и «Неправильные имена».',
+    zones:['Правильные имена','Неправильные имена'],
+    cards:[
+      { label:'Урок 8.docx', zone:'Правильные имена' },
+      { label:'Фото.jpg', zone:'Правильные имена' },
+      { label:'Урок:8.docx', zone:'Неправильные имена' },
+      { label:'Фото?.jpg', zone:'Неправильные имена' }
+    ] },
+
+  { icon:'🎵', type:'tf',
+    text:'В папке «Музыка» удобно хранить музыкальные файлы.',
+    options:['Верно','Неверно'], correct:'Верно' },
+
+  { icon:'💻', type:'mcq',
+    text:'Как открыть папку на компьютере?',
+    options:['Двойным щелчком мыши','Одинарным щелчком мыши','Правой кнопкой мыши','Клавишей Shift'],
+    correct:'Двойным щелчком мыши' },
+
+  { icon:'🔗', type:'match',
+    text:'Соедини файл и папку, в которой его удобно хранить.',
+    pairs:[
+      { left:'🎨 фото.jpg', right:'Картинки' },
+      { left:'🎵 песня.mp3', right:'Музыка' },
+      { left:'📝 доклад.docx', right:'Документы' },
+      { left:'⚙️ игра.exe', right:'Программы' }
+    ] },
+
+  { icon:'🎬', type:'mcq',
+    text:'Какое расширение у видеофайла?',
+    options:['.mp4','.docx','.jpg','.txt'], correct:'.mp4' },
+
+  { icon:'💾', type:'tf',
+    text:'Все файлы на компьютере хранятся в папках.',
+    options:['Верно','Неверно'], correct:'Верно' }
+];
+
+var STAGE2 = [
+  { icon:'📝', type:'mcq',
+    text:'Путь к файлу: C:\\Школа\\6 класс\\Информатика\\Практическая.docx. В какой папке лежит этот файл?',
+    options:['Информатика','Школа','6 класс','C:'], correct:'Информатика' },
+
+  { icon:'📝', type:'mcq',
+    text:'Путь к файлу: C:\\Школа\\6 класс\\Информатика\\Практическая.docx. Как называется сам файл?',
+    options:['Практическая.docx','Информатика','6 класс','Школа'], correct:'Практическая.docx' },
+
+  { icon:'🔢', type:'mcq',
+    text:'Сколько папок в пути C:\\Школа\\6 класс\\Информатика\\Практическая.docx?',
+    options:['3','2','4','1'], correct:'3' },
+
+  { icon:'🗂️', type:'tf',
+    text:'В пути D:\\Учёба\\6 класс\\Информатика\\тест.docx папка «Информатика» находится внутри папки «6 класс».',
+    options:['Верно','Неверно'], correct:'Верно' },
+
+  { icon:'🧩', type:'order',
+    text:'Собери путь к файлу в правильном порядке.',
+    items:['C:','Мои документы','Школа','Уроки','конспект.txt'] },
+
+  { icon:'🗂️', type:'dnd',
+    text:'Распредели файлы по папкам согласно их расширению.',
+    zones:['Документы','Изображения','Программы','Видео'],
+    cards:[
+      { label:'доклад.docx', zone:'Документы' },
+      { label:'схема.png', zone:'Изображения' },
+      { label:'антивирус.exe', zone:'Программы' },
+      { label:'ролик.mp4', zone:'Видео' }
+    ] },
+
+  { icon:'❌', type:'mcq',
+    text:'В каком имени файла есть запрещённый символ?',
+    options:['Доклад:2024.docx','Доклад 2024.docx','Доклад-2024.docx','Доклад_2024.docx'],
+    correct:'Доклад:2024.docx' },
+
+  { icon:'📁', type:'tf',
+    text:'Запись C:\\Школа\\6 класс\\Информатика\\ обозначает путь к папке.',
+    options:['Верно','Неверно'], correct:'Верно' },
+
+  { icon:'🔤', type:'mcq',
+    text:'Из чего состоит полное имя файла?',
+    options:['Имя и расширение','Только расширение','Только имя','Имя и папка'],
+    correct:'Имя и расширение' },
+
+  { icon:'🔗', type:'match',
+    text:'Определи расширение файла по его пути.',
+    pairs:[
+      { left:'C:\\Школа\\Фото.jpg', right:'.jpg' },
+      { left:'C:\\Школа\\Доклад.docx', right:'.docx' },
+      { left:'D:\\Музыка\\Гимн.mp3', right:'.mp3' },
+      { left:'D:\\Игры\\Танки.exe', right:'.exe' }
+    ] },
+
+  { icon:'🧩', type:'order',
+    text:'Расставь элементы пути по порядку — от самого верхнего уровня к самому нижнему.',
+    items:['D:','Учёба','Проекты','Сайт','index.html'] },
+
+  { icon:'📝', type:'mcq',
+    text:'Какой путь к файлу записан правильно?',
+    options:['C:\\Школа\\6 класс\\Урок.txt','C:Школа\\6 класс\\Урок.txt','C:\\Школа\\6 класс\\Урок.txt?','C:\\Школа\\6 класс\\Урок .txt .docx'],
+    correct:'C:\\Школа\\6 класс\\Урок.txt' },
+
+  { icon:'📄', type:'tf',
+    text:'В пути C:\\Школа\\6 класс\\Информатика\\Урок.docx последний элемент — файл «Урок.docx».',
+    options:['Верно','Неверно'], correct:'Верно' },
+
+  { icon:'🗂️', type:'dnd',
+    text:'Разложи карточки на группы «Папки» и «Файлы».',
+    zones:['Папки','Файлы'],
+    cards:[
+      { label:'📁 Информатика', zone:'Папки' },
+      { label:'📄 Практическая.docx', zone:'Файлы' },
+      { label:'📁 6 класс', zone:'Папки' },
+      { label:'📄 Отчёт.docx', zone:'Файлы' }
+    ] },
+
+  { icon:'🏔️', type:'mcq',
+    text:'Какая папка является самой верхней (главной) в пути C:\\Школа\\6 класс\\Информатика\\Практическая.docx?',
+    options:['Школа','Информатика','6 класс','Практическая.docx'], correct:'Школа' }
+];
+
+/* =========================================================
+   3. СОСТОЯНИЕ
+   ========================================================= */
+var state = {
+  name: '',
+  stage: 1,
+  idx: 0,
+  c1: 0,
+  c2: 0
+};
+
+var currentQ = null;
+var answered = false;
+var selectedOption = null;
+var matchState = null;
+var orderState = null;
+var draggedEl = null;
+var selectedCard = null;
+
+/* =========================================================
+   4. УТИЛИТЫ ЭКРАНОВ
+   ========================================================= */
+function showScreen(id) {
+  var screens = document.querySelectorAll('.screen');
+  for (var i = 0; i < screens.length; i++) {
+    screens[i].classList.toggle('active', screens[i].id === id);
+  }
+  window.scrollTo(0, 0);
+}
+
+function currentList() {
+  return state.stage === 1 ? STAGE1 : STAGE2;
+}
+
+/* =========================================================
+   5. АВТОРИЗАЦИЯ
+   ========================================================= */
+var nameInput = document.getElementById('nameInput');
+var startBtn = document.getElementById('startBtn');
+
+nameInput.addEventListener('input', function () {
+  startBtn.disabled = nameInput.value.trim().length < 2;
+});
+
+startBtn.addEventListener('click', function () {
+  var val = nameInput.value.trim();
+  if (val.length < 2) return;
+  state.name = val;
+  showScreen('descScreen');
+});
+
+document.getElementById('beginStage1').addEventListener('click', function () {
+  startStage(1);
+});
+
+document.getElementById('beginStage2').addEventListener('click', function () {
+  startStage(2);
+});
+
+function startStage(num) {
+  state.stage = num;
+  state.idx = 0;
+  showScreen('quizScreen');
+  renderQuestion();
+}
+
+/* =========================================================
+   6. РЕНДЕР ЗАДАНИЯ
+   ========================================================= */
+var actionBtn = document.getElementById('actionBtn');
+var feedbackBox = document.getElementById('feedback');
+
+actionBtn.addEventListener('click', function () {
+  if (!answered) {
+    checkAnswer();
+  } else {
+    nextQuestion();
+  }
+});
+
+function renderQuestion() {
+  var list = currentList();
+  var q = list[state.idx];
+  currentQ = q;
+
+  answered = false;
+  selectedOption = null;
+  matchState = null;
+  orderState = null;
+  draggedEl = null;
+  selectedCard = null;
+
+  document.getElementById('stageLabel').textContent =
+    state.stage === 1 ? '🔹 Этап 1 — Базовый' : '🔸 Этап 2 — Продвинутый';
+  document.getElementById('qCounter').textContent =
+    'Задание ' + (state.idx + 1) + ' / ' + list.length;
+
+  var globalDone = state.stage === 1 ? state.idx : STAGE1.length + state.idx;
+  document.getElementById('progressFill').style.width =
+    Math.round((globalDone / 50) * 100) + '%';
+
+  feedbackBox.className = 'feedback';
+  feedbackBox.innerHTML = '';
+
+  actionBtn.textContent = 'Проверить';
+  actionBtn.className = 'btn-primary';
+  actionBtn.disabled = false;
+
+  var body = document.getElementById('qBody');
+  body.innerHTML = '';
+
+  var head = document.createElement('div');
+  head.className = 'q-head';
+  head.innerHTML =
+    '<div class="q-icon">' + q.icon + '</div>' +
+    '<div class="q-text">' + q.text + '</div>';
+  body.appendChild(head);
+
+  if (q.type === 'mcq' || q.type === 'tf') {
+    renderChoice(q, body);
+  } else if (q.type === 'match') {
+    renderMatch(q, body);
+  } else if (q.type === 'order') {
+    renderOrder(q, body);
+  } else if (q.type === 'dnd') {
+    renderDnd(q, body);
+  }
+}
+
+/* ---------- 6.1 Один из многих / Верно-Неверно ---------- */
+function renderChoice(q, body) {
+  var opts = shuffle(q.options);
+  var wrap = document.createElement('div');
+  wrap.className = 'options';
+
+  opts.forEach(function (optText) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'option';
+    btn.dataset.val = optText;
+    btn.textContent = optText;
+    btn.addEventListener('click', function () {
+      if (answered) return;
+      var all = wrap.querySelectorAll('.option');
+      for (var i = 0; i < all.length; i++) all[i].classList.remove('selected');
+      btn.classList.add('selected');
+      selectedOption = optText;
+    });
+    wrap.appendChild(btn);
+  });
+
+  body.appendChild(wrap);
+}
+
+/* ---------- 6.2 Установление соответствий ---------- */
+function renderMatch(q, body) {
+  var lefts = shuffle(q.pairs);
+  var rights = shuffle(q.pairs.map(function (p) { return p.right; }));
+
+  matchState = { lefts: lefts, rights: rights, assign: {}, selLeft: null };
+
+  var grid = document.createElement('div');
+  grid.className = 'match-grid';
+
+  var lcol = document.createElement('div');
+  lcol.className = 'match-col';
+  lcol.id = 'matchLeft';
+
+  var rcol = document.createElement('div');
+  rcol.className = 'match-col';
+  rcol.id = 'matchRight';
+
+  lefts.forEach(function (p, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'm-item m-left';
+    b.dataset.i = i;
+    b.innerHTML = '<span class="m-name">' + p.left + '</span><span class="m-slot">—</span>';
+    b.addEventListener('click', function () {
+      if (answered) return;
+      matchState.selLeft = i;
+      refreshMatch();
+    });
+    lcol.appendChild(b);
+  });
+
+  rights.forEach(function (r, j) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'm-item m-right';
+    b.dataset.j = j;
+    b.textContent = r;
+    b.addEventListener('click', function () {
+      if (answered) return;
+      if (matchState.selLeft === null) return;
+      Object.keys(matchState.assign).forEach(function (k) {
+        if (matchState.assign[k] === j) delete matchState.assign[k];
+      });
+      matchState.assign[matchState.selLeft] = j;
+      matchState.selLeft = null;
+      refreshMatch();
+    });
+    rcol.appendChild(b);
+  });
+
+  grid.appendChild(lcol);
+  grid.appendChild(rcol);
+  body.appendChild(grid);
+  refreshMatch();
+}
+
+function refreshMatch() {
+  if (!matchState) return;
+  var lefts = matchState.lefts;
+  var rights = matchState.rights;
+  var assign = matchState.assign;
+  var selLeft = matchState.selLeft;
+
+  var leftEls = document.querySelectorAll('.m-left');
+  for (var i = 0; i < leftEls.length; i++) {
+    var el = leftEls[i];
+    var idx = Number(el.dataset.i);
+    el.classList.toggle('sel', idx === selLeft);
+    var slot = el.querySelector('.m-slot');
+    if (assign[idx] !== undefined) {
+      slot.textContent = rights[assign[idx]];
+      el.classList.add('filled');
+    } else {
+      slot.textContent = '—';
+      el.classList.remove('filled');
+    }
+  }
+
+  var usedValues = Object.keys(assign).map(function (k) { return assign[k]; });
+  var rightEls = document.querySelectorAll('.m-right');
+  for (var j = 0; j < rightEls.length; j++) {
+    var rEl = rightEls[j];
+    var jIdx = Number(rEl.dataset.j);
+    rEl.classList.toggle('used', usedValues.indexOf(jIdx) !== -1);
+  }
+}
+
+/* ---------- 6.3 Сборка порядка ---------- */
+function renderOrder(q, body) {
+  orderState = { seq: [], pool: shuffle(q.items) };
+
+  var seqBox = document.createElement('div');
+  seqBox.className = 'order-seq';
+  seqBox.id = 'orderSeq';
+
+  var label = document.createElement('div');
+  label.className = 'order-label';
+  label.textContent = 'Элементы пути:';
+
+  var poolBox = document.createElement('div');
+  poolBox.className = 'order-pool';
+  poolBox.id = 'orderPool';
+
+  body.appendChild(seqBox);
+  body.appendChild(label);
+  body.appendChild(poolBox);
+
+  refreshOrder();
+}
+
+function refreshOrder() {
+  var seqBox = document.getElementById('orderSeq');
+  var poolBox = document.getElementById('orderPool');
+  if (!seqBox || !poolBox || !orderState) return;
+
+  seqBox.innerHTML = '';
+  poolBox.innerHTML = '';
+
+  if (orderState.seq.length === 0) {
+    var ph = document.createElement('div');
+    ph.className = 'order-placeholder';
+    ph.textContent = 'Нажимайте на элементы ниже в правильном порядке';
+    seqBox.appendChild(ph);
+  }
+
+  orderState.seq.forEach(function (item, idx) {
+    var el = document.createElement('div');
+    el.className = 'order-item in-seq';
+    el.innerHTML = '<span class="order-num">' + (idx + 1) + '</span><span>' + item + '</span>';
+    el.addEventListener('click', function () {
+      if (answered) return;
+      orderState.seq.splice(idx, 1);
+      orderState.pool.push(item);
+      refreshOrder();
+    });
+    seqBox.appendChild(el);
+  });
+
+  orderState.pool.forEach(function (item, idx) {
+    var el = document.createElement('div');
+    el.className = 'order-item';
+    el.textContent = item;
+    el.addEventListener('click', function () {
+      if (answered) return;
+      orderState.seq.push(item);
+      orderState.pool.splice(idx, 1);
+      refreshOrder();
+    });
+    poolBox.appendChild(el);
+  });
+}
+
+/* ---------- 6.4 Drag & Drop ---------- */
+function renderDnd(q, body) {
+  var cards = shuffle(q.cards);
+  var zones = shuffle(q.zones);
+
+  var poolWrap = document.createElement('div');
+  poolWrap.className = 'drop-target cards-pool';
+  poolWrap.dataset.drop = '__pool';
+  poolWrap.innerHTML = '<div class="zone-title">Карточки (перетащи в нужную группу)</div><div class="zone-content"></div>';
+
+  var zonesWrap = document.createElement('div');
+  zonesWrap.className = 'zones';
+
+  body.appendChild(poolWrap);
+  body.appendChild(zonesWrap);
+
+  var allTargets = [poolWrap];
+
+  zones.forEach(function (zoneName) {
+    var zoneEl = document.createElement('div');
+    zoneEl.className = 'drop-target zone';
+    zoneEl.dataset.drop = zoneName;
+    zoneEl.innerHTML = '<div class="zone-title">' + zoneName + '</div><div class="zone-content"></div>';
+    zonesWrap.appendChild(zoneEl);
+    allTargets.push(zoneEl);
+  });
+
+  var poolContent = poolWrap.querySelector('.zone-content');
+
+  cards.forEach(function (c) {
+    var card = document.createElement('div');
+    card.className = 'dnd-card';
+    card.draggable = true;
+    card.dataset.zone = c.zone;
+    card.textContent = c.label;
+
+    card.addEventListener('dragstart', function (e) {
+      if (answered) { e.preventDefault(); return; }
+      draggedEl = card;
+      card.classList.add('dragging');
+      try {
+        e.dataTransfer.setData('text/plain', 'card');
+        e.dataTransfer.effectAllowed = 'move';
+      } catch (err) { /* ignore */ }
+    });
+
+    card.addEventListener('dragend', function () {
+      card.classList.remove('dragging');
+      draggedEl = null;
+    });
+
+    card.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (answered) return;
+      if (selectedCard === card) {
+        card.classList.remove('selected');
+        selectedCard = null;
+        return;
+      }
+      var prev = document.querySelectorAll('.dnd-card.selected');
+      for (var i = 0; i < prev.length; i++) prev[i].classList.remove('selected');
+      card.classList.add('selected');
+      selectedCard = card;
+    });
+
+    poolContent.appendChild(card);
+  });
+
+  allTargets.forEach(function (t) {
+    t.addEventListener('dragover', function (e) {
+      if (answered) return;
+      e.preventDefault();
+      try { e.dataTransfer.dropEffect = 'move'; } catch (err) { }
+      t.classList.add('over');
+    });
+
+    t.addEventListener('dragleave', function (e) {
+      if (!t.contains(e.relatedTarget)) t.classList.remove('over');
+    });
+
+    t.addEventListener('drop', function (e) {
+      e.preventDefault();
+      t.classList.remove('over');
+      if (answered || !draggedEl) return;
+      t.querySelector('.zone-content').appendChild(draggedEl);
+    });
+
+    t.addEventListener('click', function (e) {
+      if (answered || !selectedCard) return;
+      if (e.target.closest && e.target.closest('.dnd-card')) return;
+      t.querySelector('.zone-content').appendChild(selectedCard);
+      selectedCard.classList.remove('selected');
+      selectedCard = null;
+    });
+  });
+}
+
+/* =========================================================
+   7. ПРОВЕРКА ОТВЕТОВ
+   ========================================================= */
+function checkAnswer() {
+  var q = currentQ;
+  var ok = false;
+  var extra = '';
+
+  if (q.type === 'mcq' || q.type === 'tf') {
+    var opts = document.querySelectorAll('#qBody .option');
+    for (var i = 0; i < opts.length; i++) {
+      var o = opts[i];
+      o.classList.add('locked');
+      if (o.dataset.val === q.correct) {
+        o.classList.add('correct');
+      } else if (o.dataset.val === selectedOption) {
+        o.classList.add('wrong');
+      }
+    }
+    ok = (selectedOption === q.correct);
+    if (!ok) extra = 'Правильный ответ: ' + q.correct;
+
+  } else if (q.type === 'match') {
+    var lefts = matchState.lefts;
+    var rights = matchState.rights;
+    var assign = matchState.assign;
+    ok = true;
+    lefts.forEach(function (p, idx) {
+      var el = document.querySelector('.m-left[data-i="' + idx + '"]');
+      var j = assign[idx];
+      if (j !== undefined && rights[j] === p.right) {
+        if (el) el.classList.add('ok');
+      } else {
+        if (el) el.classList.add('bad');
+        ok = false;
+      }
+    });
+    if (!ok) {
+      extra = 'Правильные пары: ' + lefts.map(function (p) {
+        return p.left + ' → ' + p.right;
+      }).join('; ');
+    }
+
+  } else if (q.type === 'order') {
+    var seqStr = orderState.seq.join('|||');
+    var correctStr = q.items.join('|||');
+    ok = (seqStr === correctStr);
+    var seqItems = document.querySelectorAll('#orderSeq .order-item');
+    for (var s = 0; s < seqItems.length; s++) {
+      seqItems[s].classList.add(orderState.seq[s] === q.items[s] ? 'ok' : 'bad');
+    }
+    if (!ok) extra = 'Правильный порядок: ' + q.items.join(' → ');
+
+  } else if (q.type === 'dnd') {
+    ok = true;
+    var dndCards = document.querySelectorAll('#qBody .dnd-card');
+    for (var d = 0; d < dndCards.length; d++) {
+      var card = dndCards[d];
+      var target = card.closest('[data-drop]');
+      var placed = target ? target.dataset.drop : '__pool';
+      if (placed === card.dataset.zone) {
+        card.classList.add('ok');
+      } else {
+        card.classList.add('bad');
+        ok = false;
+      }
+    }
+    if (!ok) {
+      extra = 'Правильные группы: ' + q.cards.map(function (c) {
+        return c.label + ' → ' + c.zone;
+      }).join('; ');
+    }
+  }
+
+  answered = true;
+
+  if (ok) {
+    if (state.stage === 1) state.c1++;
+    else state.c2++;
+  }
+
+  feedbackBox.className = 'feedback show ' + (ok ? 'ok' : 'bad');
+  feedbackBox.innerHTML = ok
+    ? '✅ Верно! Молодец!'
+    : '❌ Неверно. ' + extra;
+
+  var isLast =
+    (state.stage === 1 && state.idx === STAGE1.length - 1) ||
+    (state.stage === 2 && state.idx === STAGE2.length - 1);
+
+  if (isLast) {
+    actionBtn.textContent = state.stage === 1 ? 'Перейти к Этапу 2 ▶' : 'Показать результат 🏆';
+  } else {
+    actionBtn.textContent = 'Далее ▶';
+  }
+}
+
+/* =========================================================
+   8. ПЕРЕХОД МЕЖДУ ЗАДАНИЯМИ
+   ========================================================= */
+function nextQuestion() {
+  if (state.stage === 1) {
+    if (state.idx + 1 >= STAGE1.length) {
+      showScreen('stage2Screen');
+      return;
+    }
+    state.idx++;
+    renderQuestion();
+  } else {
+    if (state.idx + 1 >= STAGE2.length) {
+      showResults();
+      return;
+    }
+    state.idx++;
+    renderQuestion();
+  }
+}
+
+/* =========================================================
+   9. РЕЗУЛЬТАТ
+   ========================================================= */
+function showResults() {
+  var c1 = state.c1;
+  var c2 = state.c2;
+
+  var s1 = Math.min(8, 6 + Math.round((c1 / STAGE1.length) * 2));
+
+  var s2 = 0;
+  if (c2 >= 12) s2 = 2;
+  else if (c2 >= 8) s2 = 1;
+
+  var total = Math.min(10, s1 + s2);
+
+  document.getElementById('resName').textContent = state.name;
+  document.getElementById('resGrade').textContent = 'ИТОГОВАЯ ОЦЕНКА: ' + total + ' / 10';
+  document.getElementById('resCorrect').textContent = (c1 + c2) + ' из 50';
+  document.getElementById('resStage1').textContent = s1 + ' / 8 (верно ' + c1 + ' из 35)';
+  document.getElementById('resStage2').textContent = s2 + ' / 2 (верно ' + c2 + ' из 15)';
+
+  showScreen('resultScreen');
+}
+
+/* =========================================================
+   10. СТАРТ
+   ========================================================= */
+nameInput.focus();
+</script>
+</body>
+</html>
